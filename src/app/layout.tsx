@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Tomás Correia",
   description: "Tomás Correia's Portfolio",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
