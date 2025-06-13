@@ -14,10 +14,17 @@ interface EnhancedSkillsCardProps {
 }
 
 const skillCategories = {
-  Frontend: ["React", "Next.js", "TypeScript", "Tailwind CSS", "HTML5", "CSS3"],
-  Backend: ["Node.js", "Express", "Python", "PostgreSQL", "MongoDB"],
-  Tools: ["Git", "Docker", "Linux", "VS Code", "Figma", "Webpack"],
-  Concepts: ["Responsive Design", "Performance", "Accessibility", "Testing"],
+  Backend: ["Golang", "Node.js", "Django/Python"],
+  Concepts: [
+    "Virtualization",
+    "Containerization",
+    "Distributed Systems",
+    "Networking",
+    "Security",
+  ],
+  Frontend: ["Mainly Vibes", "Next.js"],
+  Tools: ["Git", "Docker", "Linux", "Proxmox"],
+  "Other Skills": ["Home Labbing", "Home Automation", "Tinkering"],
 };
 
 export function EnhancedSkillsCard({
@@ -40,32 +47,34 @@ export function EnhancedSkillsCard({
       onClose={onClose}
       variant="linux"
     >
-      <h2 className="text-xl font-bold mb-4 text-foreground">
-        Technical Skills
-      </h2>
+      <div className="p-4 sm:p-5 h-full flex flex-col">
+        <h2 className="text-xl font-bold mb-4 text-foreground">
+          Technical Skills
+        </h2>
 
-      <div className="space-y-4">
-        {Object.entries(skillCategories).map(([category, skills]) => (
-          <div key={category}>
-            <h3 className="font-semibold text-sm mb-2 text-foreground">
-              {category}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill) => (
-                <Badge key={skill} variant="secondary" className="text-xs">
-                  {skill}
-                </Badge>
-              ))}
+        <div className="space-y-4">
+          {Object.entries(skillCategories).map(([category, skills]) => (
+            <div key={category}>
+              <h3 className="font-semibold text-sm mb-2 text-foreground">
+                {category}
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {skills.map((skill) => (
+                  <Badge key={skill} variant="secondary" className="text-xs">
+                    {skill}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      <div className="mt-6 pt-4 border-t border-border">
-        <p className="text-sm text-muted-foreground">
-          Always learning and staying up-to-date with the latest technologies
-          and best practices in web development.
-        </p>
+        <div className="mt-6 pt-4 pb-4 border-t border-border">
+          <p className="text-sm text-muted-foreground">
+            In general, I&apos;m always learning and staying up-to-date with
+            most technologies.
+          </p>
+        </div>
       </div>
     </EnhancedWindow>
   );

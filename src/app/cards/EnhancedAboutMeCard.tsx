@@ -32,29 +32,49 @@ export function EnhancedAboutMeCard({
       onClose={onClose}
       variant="mac"
     >
-      <h2 className="text-xl font-bold mb-2 text-foreground">About Me</h2>
-      <p className="text-base text-muted-foreground mb-4">
-        I&apos;m a passionate developer who loves creating beautiful and
-        functional user interfaces. I have experience with modern web
-        technologies including React, Next.js, TypeScript, and Tailwind CSS.
-      </p>
-      <p className="text-base text-muted-foreground mb-4">
-        When I&apos;m not coding, you can find me exploring new technologies,
-        contributing to open source projects, or working on personal side
-        projects that solve interesting problems.
-      </p>
-      <div className="mt-auto pt-4">
-        <div className="flex flex-wrap gap-2">
-          <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm">
-            Creative
-          </span>
-          <span className="px-3 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm">
-            Problem Solver
-          </span>
-          <span className="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">
-            Team Player
-          </span>
+      <div className="p-4 sm:p-5 h-full flex flex-col">
+        <h2 className="text-xl font-bold mb-2 text-foreground">About Me</h2>
+        <p className="text-base text-muted-foreground mb-4">
+          I&apos;m Tomás Correia, a software engineer with a passion for
+          building. I studied Computer Science at the University of Lisbon.
+        </p>
+        <p className="text-base text-muted-foreground mb-4">
+          When I&apos;m not coding, I&apos;m usually tinkering with my home lab,
+          my smart home, my network, or just enjoying the outdoors and spending
+          time with my friends and family.
+        </p>
+        <p className="text-base text-muted-foreground mb-4">
+          Here are some of the projects I use in my home lab:
+        </p>
+        <div className="flex flex-wrap gap-2 mb-4">
+          <a
+            href="https://home-assistant.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-[#41BDF5] hover:bg-[#369BD9] text-white transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            Home Assistant
+          </a>
+          <a
+            href="https://proxmox.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-[#E57000] hover:bg-[#CC6600] text-white transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            Proxmox
+          </a>
+          <a
+            href="https://docker.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-[#2496ED] hover:bg-[#1E7FC6] text-white transition-colors duration-200 shadow-sm hover:shadow-md"
+          >
+            Docker
+          </a>
         </div>
+        <p className="text-sm text-muted-foreground opacity-75">
+          I will add more here soon...
+        </p>
       </div>
     </EnhancedWindow>
   );

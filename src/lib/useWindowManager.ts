@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export interface WindowState {
     id: string;
@@ -27,7 +27,50 @@ export interface WindowManagerReturn {
     addWindow: (window: Omit<WindowState, 'zIndex'>) => void;
     isDragging: boolean;
     isResizing: boolean;
+    isInitialized: boolean;
+    clearStorage: () => void;
 }
+
+// localStorage helper functions
+const STORAGE_KEY = 'windowManager-state';
+
+interface StoredState {
+    windows: Record<string, WindowState>;
+    closedWindows: Record<string, WindowState>;
+    maxZIndex: number;
+}
+
+const saveToLocalStorage = (state: StoredState) => {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+        console.warn('Failed to save window state to localStorage:', error);
+    }
+};
+
+const loadFromLocalStorage = (): StoredState | null => {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return null;
+
+        const parsed = JSON.parse(stored);
+
+        // Validate the structure
+        if (
+            typeof parsed === 'object' &&
+            parsed.windows &&
+            parsed.closedWindows &&
+            typeof parsed.maxZIndex === 'number'
+        ) {
+            return parsed;
+        }
+
+        return null;
+    } catch (error) {
+        console.warn('Failed to load window state from localStorage:', error);
+        return null;
+    }
+};
 
 export function useWindowManager(): WindowManagerReturn {
     const [windows, setWindows] = useState<Record<string, WindowState>>({});
@@ -35,6 +78,31 @@ export function useWindowManager(): WindowManagerReturn {
     const [maxZIndex, setMaxZIndex] = useState(1000);
     const [isDragging, setIsDragging] = useState(false);
     const [isResizing, setIsResizing] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    // Load state from localStorage on mount
+    useEffect(() => {
+        const stored = loadFromLocalStorage();
+        if (stored) {
+            setWindows(stored.windows);
+            setClosedWindows(stored.closedWindows);
+            setMaxZIndex(stored.maxZIndex);
+        }
+        setIsInitialized(true);
+    }, []);
+
+    // Save state to localStorage whenever windows, closedWindows, or maxZIndex change
+    useEffect(() => {
+        if (!isInitialized) return; // Don't save during initial load
+
+        const state: StoredState = {
+            windows,
+            closedWindows,
+            maxZIndex,
+        };
+
+        saveToLocalStorage(state);
+    }, [windows, closedWindows, maxZIndex, isInitialized]);
 
     const updateWindow = useCallback((id: string, updates: Partial<WindowState>) => {
         setWindows(prev => ({
@@ -50,12 +118,19 @@ export function useWindowManager(): WindowManagerReturn {
     }, [maxZIndex, updateWindow]);
 
     const addWindow = useCallback((window: Omit<WindowState, 'zIndex'>) => {
-        const newZIndex = maxZIndex + 1;
-        setMaxZIndex(newZIndex);
-        setWindows(prev => ({
-            ...prev,
-            [window.id]: { ...window, zIndex: newZIndex }
-        }));
+        // Check if window already exists (to prevent duplicates on restore)
+        setWindows(prev => {
+            if (prev[window.id]) {
+                return prev; // Window already exists, don't add again
+            }
+
+            const newZIndex = maxZIndex + 1;
+            setMaxZIndex(newZIndex);
+            return {
+                ...prev,
+                [window.id]: { ...window, zIndex: newZIndex }
+            };
+        });
     }, [maxZIndex]);
 
     const startDrag = useCallback((id: string, startX: number, startY: number) => {
@@ -224,6 +299,18 @@ export function useWindowManager(): WindowManagerReturn {
         });
     }, [maxZIndex]);
 
+    const clearStorage = useCallback(() => {
+        try {
+            localStorage.removeItem(STORAGE_KEY);
+            // Reset to initial state
+            setWindows({});
+            setClosedWindows({});
+            setMaxZIndex(1000);
+        } catch (error) {
+            console.warn('Failed to clear localStorage:', error);
+        }
+    }, []);
+
     return {
         windows,
         closedWindows,
@@ -238,5 +325,7 @@ export function useWindowManager(): WindowManagerReturn {
         addWindow,
         isDragging,
         isResizing,
+        isInitialized,
+        clearStorage,
     };
 } 

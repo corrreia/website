@@ -293,7 +293,7 @@ export function EnhancedWindow({
   return (
     <div
       ref={windowRef}
-      className={getWindowClasses()}
+      className={cn(getWindowClasses(), "pointer-events-auto")}
       style={getWindowStyle()}
       onMouseDown={onMouseDown}
     >
@@ -318,7 +318,7 @@ export function EnhancedWindow({
           renderWindowControls()}
       </div>
 
-      <div className="flex-1 flex flex-col p-4 sm:p-5 bg-white dark:bg-[#1d1d20] overflow-auto">
+      <div className="flex-1 flex flex-col bg-white dark:bg-[#1d1d20] overflow-auto">
         {children}
       </div>
     </div>

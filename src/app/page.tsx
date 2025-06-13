@@ -7,54 +7,79 @@ import profile from "./profile.json";
 import { EnhancedAboutMeCard } from "./cards/EnhancedAboutMeCard";
 import { EnhancedFeaturedProjectCard } from "./cards/EnhancedFeaturedProjectCard";
 import { EnhancedSkillsCard } from "./cards/EnhancedSkillsCard";
+import { CheerPXCard } from "./cards/CheerPXCard";
 import { useWindowManager } from "@/lib/useWindowManager";
+import { useNasaApod } from "@/lib/useNasaApod";
 import React, { useEffect } from "react";
 
 export default function Home() {
   const windowManager = useWindowManager();
+  const { apod, isLoading: apodLoading, error: apodError } = useNasaApod();
 
   // Initialize windows on component mount
   useEffect(() => {
-    // Only add windows if they don't exist yet
-    if (Object.keys(windowManager.windows).length === 0) {
-      // Add initial windows with staggered positions
-      windowManager.addWindow({
-        id: "about",
-        title: "About Me",
-        x: 50,
-        y: 100,
-        width: 400,
-        height: 350,
-        isMinimized: false,
-        isMaximized: false,
-        isVisible: true,
-      });
+    // Only add default windows if windowManager is initialized and no windows exist
+    if (windowManager.isInitialized) {
+      const totalWindows =
+        Object.keys(windowManager.windows).length +
+        Object.keys(windowManager.closedWindows).length;
 
-      windowManager.addWindow({
-        id: "project",
-        title: "Featured Project",
-        x: 500,
-        y: 150,
-        width: 450,
-        height: 400,
-        isMinimized: false,
-        isMaximized: false,
-        isVisible: true,
-      });
+      if (totalWindows === 0) {
+        // Add initial windows with staggered positions
+        windowManager.addWindow({
+          id: "about",
+          title: "About Me",
+          x: 50,
+          y: 100,
+          width: 400,
+          height: 350,
+          isMinimized: false,
+          isMaximized: false,
+          isVisible: true,
+        });
 
-      windowManager.addWindow({
-        id: "skills",
-        title: "Skills",
-        x: 100,
-        y: 300,
-        width: 380,
-        height: 450,
-        isMinimized: false,
-        isMaximized: false,
-        isVisible: true,
-      });
+        windowManager.addWindow({
+          id: "project",
+          title: "Featured Project",
+          x: 500,
+          y: 150,
+          width: 450,
+          height: 400,
+          isMinimized: false,
+          isMaximized: false,
+          isVisible: true,
+        });
+
+        windowManager.addWindow({
+          id: "skills",
+          title: "Skills",
+          x: 100,
+          y: 300,
+          width: 380,
+          height: 450,
+          isMinimized: false,
+          isMaximized: false,
+          isVisible: true,
+        });
+
+        windowManager.addWindow({
+          id: "cheerpx",
+          title: "Terminal",
+          x: 200,
+          y: 80,
+          width: 700,
+          height: 500,
+          isMinimized: false,
+          isMaximized: false,
+          isVisible: true,
+        });
+      }
     }
-  }, []); // Only run once on mount
+  }, [
+    windowManager.isInitialized,
+    windowManager.windows,
+    windowManager.closedWindows,
+  ]); // React when initialization completes
 
   const renderWindows = () => {
     return Object.entries(windowManager.windows).map(([id, windowState]) => {
@@ -77,6 +102,8 @@ export default function Home() {
           return <EnhancedFeaturedProjectCard key={id} {...commonProps} />;
         case "skills":
           return <EnhancedSkillsCard key={id} {...commonProps} />;
+        case "cheerpx":
+          return <CheerPXCard key={id} {...commonProps} />;
         default:
           return null;
       }
@@ -84,56 +111,98 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-background font-sans">
-      {/* Header Section */}
-      <header className="w-full flex flex-col lg:flex-row items-center justify-between px-3 sm:px-6 lg:px-12 py-4 sm:py-6 lg:py-8 bg-card/80 border-b shadow-sm gap-3 sm:gap-4">
-        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full lg:w-auto">
-          <Avatar className="size-16 sm:size-18 lg:size-20 flex-shrink-0">
-            <AvatarImage src={profile.avatar} alt={profile.name} />
-            <AvatarFallback>
-              {profile.name
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex flex-col items-center sm:items-start w-full lg:w-auto min-w-0">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-center sm:text-left lg:truncate">
-              {profile.name}
-            </h1>
-            <p className="text-muted-foreground text-sm sm:text-base lg:text-lg text-center sm:text-left mt-0.5">
-              {profile.title}
-            </p>
-            <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 sm:gap-2 mt-2 sm:mt-1">
-              {profile.badges.map((badge: string) => (
-                <Badge
-                  key={badge}
-                  variant="secondary"
-                  className="text-xs px-2 py-0.5"
+    <div className="min-h-screen w-full bg-background font-sans">
+      {/* Desktop Environment - Full Height */}
+      <main
+        className="h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800"
+        style={{
+          backgroundImage:
+            apod && !apodLoading
+              ? `url(${apod.proxyHdUrl || apod.proxyUrl})`
+              : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {/* Header Card - Non-movable */}
+        <div className="absolute top-4 left-4 z-5">
+          <div className="bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-lg p-3 sm:p-4 shadow-lg border border-white/20">
+            <div className="flex flex-col lg:flex-row items-center justify-between gap-3 sm:gap-4">
+              <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full lg:w-auto">
+                <Avatar className="size-12 sm:size-14 lg:size-16 flex-shrink-0">
+                  <AvatarImage src={profile.avatar} alt={profile.name} />
+                  <AvatarFallback>
+                    {profile.name
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col items-center sm:items-start w-full lg:w-auto min-w-0">
+                  <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-center sm:text-left lg:truncate">
+                    {profile.name}
+                  </h1>
+                  <p className="text-muted-foreground text-sm sm:text-base text-center sm:text-left mt-0.5">
+                    {profile.title}
+                  </p>
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-1.5 sm:gap-2 mt-2 sm:mt-1">
+                    {profile.badges.map((badge: string) => (
+                      <Badge
+                        key={badge}
+                        variant="secondary"
+                        className="text-xs px-2 py-0.5"
+                      >
+                        {badge}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto lg:flex-shrink-0">
+                <Button
+                  size="default"
+                  className="w-full sm:w-auto min-w-[120px]"
                 >
-                  {badge}
-                </Badge>
-              ))}
+                  Contact Me
+                </Button>
+                <ThemeToggle size="default" />
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto lg:flex-shrink-0">
-          <Button size="default" className="w-full sm:w-auto min-w-[120px]">
-            Contact Me
-          </Button>
-          <ThemeToggle size="default" />
-        </div>
-      </header>
+        {/* Overlay for better contrast */}
+        {apod && !apodLoading && (
+          <div className="absolute inset-0 bg-black/20 dark:bg-black/40" />
+        )}
 
-      {/* Desktop Environment */}
-      <main className="flex-1 relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+        {/* Loading indicator for APOD */}
+        {apodLoading && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs">
+              Loading NASA Astronomy Picture...
+            </div>
+          </div>
+        )}
+
+        {/* Error indicator for APOD */}
+        {apodError && (
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="bg-red-100/90 dark:bg-red-900/90 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-red-800 dark:text-red-200">
+              Failed to load NASA image
+            </div>
+          </div>
+        )}
+
         {/* Window Container */}
-        <div className="absolute inset-0">{renderWindows()}</div>
+        <div className="absolute inset-0 z-10 pointer-events-none">
+          {renderWindows()}
+        </div>
 
-        {/* Desktop Instructions */}
-        <div className="absolute bottom-4 left-4 right-4 sm:left-6 sm:right-auto">
+        {/* Desktop Instructions - Left */}
+        <div className="absolute bottom-4 left-4 z-5">
           <div className="bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-lg p-3 shadow-lg max-w-sm">
-            <h3 className="font-semibold text-sm mb-2">Window Controls:</h3>
+            <h3 className="font-semibold text-sm mb-2">Desktop Features:</h3>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• Drag title bar to move windows</li>
               <li>• Drag edges/corners to resize</li>
@@ -144,13 +213,39 @@ export default function Home() {
           </div>
         </div>
 
+        {/* NASA APOD Info - Right */}
+        {apod && !apodLoading && (
+          <div className="absolute bottom-4 right-4 z-5">
+            <div className="bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-lg p-3 shadow-lg max-w-sm">
+              <a
+                href={`https://apod.nasa.gov/apod/ap${apod.date
+                  .replace(/-/g, "")
+                  .substring(2)}.html`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs text-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+              >
+                <span className="font-medium">{apod.title}</span>
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  Click to view on NASA APOD
+                </div>
+              </a>
+              {apod.copyright && (
+                <div className="text-[10px] text-muted-foreground mt-2 opacity-75">
+                  © {apod.copyright}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Restore Panel */}
         {Object.keys(windowManager.closedWindows).length > 0 && (
-          <div className="absolute top-6 right-6">
-            <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-md rounded-xl p-4 shadow-2xl border border-gray-200 dark:border-gray-700 min-w-[200px]">
+          <div className="absolute top-4 right-4 z-15">
+            <div className="bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-white/20 min-w-[200px]">
               <div className="flex items-center gap-2 mb-3">
                 <div className="w-2 h-2 rounded-full bg-orange-400 animate-pulse"></div>
-                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                <h4 className="text-sm font-semibold text-foreground">
                   Hidden Windows
                 </h4>
               </div>
@@ -160,22 +255,22 @@ export default function Home() {
                     <button
                       key={id}
                       onClick={() => windowManager.restoreWindow(id)}
-                      className="w-full flex items-center gap-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 group border border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                      className="w-full flex items-center gap-3 p-2 rounded-lg bg-muted/50 hover:bg-muted transition-all duration-200 group border border-transparent hover:border-border"
                     >
                       <div className="flex-shrink-0 w-6 h-6 rounded-md bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-medium">
                         {window.title.charAt(0)}
                       </div>
                       <div className="flex-1 text-left">
-                        <div className="text-sm font-medium text-gray-800 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                        <div className="text-sm font-medium text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {window.title}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-xs text-muted-foreground">
                           Click to restore
                         </div>
                       </div>
                       <div className="flex-shrink-0">
                         <svg
-                          className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors"
+                          className="w-4 h-4 text-muted-foreground group-hover:text-blue-500 transition-colors"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -192,8 +287,8 @@ export default function Home() {
                   )
                 )}
               </div>
-              <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-                <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+              <div className="mt-3 pt-3 border-t border-border">
+                <div className="text-xs text-muted-foreground text-center">
                   {Object.keys(windowManager.closedWindows).length} window
                   {Object.keys(windowManager.closedWindows).length !== 1
                     ? "s"
@@ -204,17 +299,45 @@ export default function Home() {
             </div>
           </div>
         )}
-      </main>
 
-      {/* Footer */}
-      <footer className="w-full flex flex-col items-center gap-2 text-xs text-muted-foreground py-4 sm:py-6 border-t bg-card/80 px-2 sm:px-0">
-        <span className="text-center">
-          © {new Date().getFullYear()} {profile.name}. All rights reserved.
-        </span>
-        <span className="text-center">
-          Built with Next.js, Tailwind CSS, and shadcn/ui.
-        </span>
-      </footer>
+        {/* Footer Card - Non-movable */}
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-5">
+          <div className="bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-lg p-3 shadow-lg border border-white/20 max-w-lg">
+            <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground text-center">
+              <span>
+                © {new Date().getFullYear()} {profile.name}. All source code is
+                available on{" "}
+                <a
+                  href="https://github.com/corrreia/website"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  GitHub
+                </a>
+                .
+              </span>
+              <span className="group cursor-pointer relative inline-block">
+                Built with <span className="text-red-500">❤</span>
+                <span className="absolute left-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 ml-1 whitespace-nowrap">
+                  by ChatGPT
+                </span>
+              </span>
+              <span>
+                🐧 Linux VM powered by{" "}
+                <a
+                  href="https://leaningtech.com/cheerpx/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  CheerPX
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
