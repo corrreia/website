@@ -4,10 +4,11 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import profile from "./profile.json";
-import { EnhancedAboutMeCard } from "./cards/EnhancedAboutMeCard";
-import { EnhancedFeaturedProjectCard } from "./cards/EnhancedFeaturedProjectCard";
-import { EnhancedSkillsCard } from "./cards/EnhancedSkillsCard";
+import { EnhancedAboutMeCard } from "./cards/AboutMeCard";
+import { EnhancedFeaturedProjectCard } from "./cards/FeaturedProjectCard";
+import { EnhancedSkillsCard } from "./cards/SkillsCard";
 import { CheerPXCard } from "./cards/CheerPXCard";
+import { ContactCard } from "./cards/ContactCard";
 import { useWindowManager } from "@/lib/useWindowManager";
 import { useNasaApod } from "@/lib/useNasaApod";
 import React, { useEffect } from "react";
@@ -25,61 +26,44 @@ export default function Home() {
         Object.keys(windowManager.closedWindows).length;
 
       if (totalWindows === 0) {
-        // Add initial windows with staggered positions
-        windowManager.addWindow({
-          id: "about",
-          title: "About Me",
-          x: 50,
-          y: 100,
-          width: 400,
-          height: 350,
-          isMinimized: false,
-          isMaximized: false,
-          isVisible: true,
-        });
+        // Generate random positions for all windows (including contact)
+        const windowPositions = windowManager.generateRandomWindowPositions();
 
-        windowManager.addWindow({
-          id: "project",
-          title: "Featured Project",
-          x: 500,
-          y: 150,
-          width: 450,
-          height: 400,
-          isMinimized: false,
-          isMaximized: false,
-          isVisible: true,
-        });
+        // Add non-contact windows first
+        windowPositions
+          .filter((w) => !w.isContact)
+          .forEach((windowConfig) => {
+            windowManager.addWindow({
+              id: windowConfig.id,
+              title: windowConfig.title,
+              x: windowConfig.x,
+              y: windowConfig.y,
+              width: windowConfig.width,
+              height: windowConfig.height,
+              isMinimized: false,
+              isMaximized: false,
+              isVisible: true,
+            });
+          });
 
-        windowManager.addWindow({
-          id: "skills",
-          title: "Skills",
-          x: 100,
-          y: 300,
-          width: 380,
-          height: 450,
-          isMinimized: false,
-          isMaximized: false,
-          isVisible: true,
-        });
-
-        windowManager.addWindow({
-          id: "cheerpx",
-          title: "Terminal",
-          x: 200,
-          y: 80,
-          width: 700,
-          height: 500,
-          isMinimized: false,
-          isMaximized: false,
-          isVisible: true,
-        });
+        // Add contact window LAST to ensure highest z-index (always on top)
+        const contactWindow = windowPositions.find((w) => w.isContact);
+        if (contactWindow) {
+          windowManager.addWindow({
+            id: contactWindow.id,
+            title: contactWindow.title,
+            x: contactWindow.x,
+            y: contactWindow.y,
+            width: contactWindow.width,
+            height: contactWindow.height,
+            isMinimized: false,
+            isMaximized: false,
+            isVisible: true,
+          });
+        }
       }
     }
-  }, [
-    windowManager.isInitialized,
-    windowManager.windows,
-    windowManager.closedWindows,
-  ]); // React when initialization completes
+  }); // React when initialization completes
 
   const renderWindows = () => {
     return Object.entries(windowManager.windows).map(([id, windowState]) => {
@@ -104,6 +88,8 @@ export default function Home() {
           return <EnhancedSkillsCard key={id} {...commonProps} />;
         case "cheerpx":
           return <CheerPXCard key={id} {...commonProps} />;
+        case "contact":
+          return <ContactCard key={id} {...commonProps} />;
         default:
           return null;
       }
@@ -163,6 +149,7 @@ export default function Home() {
                 <Button
                   size="default"
                   className="w-full sm:w-auto min-w-[120px]"
+                  onClick={() => windowManager.showWindowCentered("contact")}
                 >
                   Contact Me
                 </Button>

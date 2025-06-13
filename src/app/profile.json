@@ -2,5 +2,11 @@
   "name": "Tomás Correia",
   "title": "Computers and Engineering",
   "avatar": "/avatar.jpg",
-  "badges": ["Software Development", "Home Labbing", "Home Automation"]
+  "badges": ["Software Development", "Home Labbing", "Home Automation"],
+  "contact": {
+    "email": "me@tomascorreia.net",
+    "linkedin": "https://www.linkedin.com/in/tomasmcorreia/",
+    "github": "https://github.com/corrreia",
+    "cv": "cv.tomascorreia.net"
+  }
 }
