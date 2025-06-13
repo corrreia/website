@@ -1,11 +1,15 @@
-
 import { WindowLinux } from "@/components/WindowLinux";
 import { Badge } from "@/components/ui/badge";
 
-export function SkillsCard() {
+interface SkillsCardProps {
+  draggableId: string;
+  index: number;
+}
+
+export function SkillsCard({ draggableId, index }: SkillsCardProps) {
   return (
-    <WindowLinux title="Skills">
-      <h2 className="text-xl font-bold mb-2">Skills</h2>
+    <WindowLinux title="Skills" draggableId={draggableId} index={index}>
+      <h2 className="text-xl font-bold mb-2 text-foreground">Skills</h2>
       <div className="flex flex-wrap gap-2 sm:gap-3 justify-center sm:justify-start">
         <Badge>JavaScript</Badge>
         <Badge>TypeScript</Badge>

@@ -1,28 +1,67 @@
 import React from "react";
+import { Draggable } from "@hello-pangea/dnd";
 
 interface WindowWinProps {
   title: string;
   children: React.ReactNode;
+  draggableId: string;
+  index: number;
 }
 
+export function WindowWin({
+  title,
+  children,
+  draggableId,
+  index,
+}: WindowWinProps) {
   return (
-    <div className="h-full flex flex-col rounded-md border border-[#bfcad6] bg-gradient-to-br from-[#f3f6fa] to-[#e7ecf3] shadow-lg overflow-hidden">
-      <div
-        className="flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-[#e3eaf6] to-[#c7d4e9] border-b border-[#bfcad6] select-none cursor-grab active:cursor-grabbing"
-        {...(typeof (window as any) !== 'undefined' && (window as any).dragHandleProps ? (window as any).dragHandleProps : {})}
-      >
-        <div className="flex gap-1 mr-2">
-          <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#0078d7] border border-[#005fa3] shadow-inner"></span>
-          <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#f9d423] border border-[#bfa100] shadow-inner"></span>
+    <Draggable draggableId={draggableId} index={index}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          className={`h-full flex flex-col rounded-lg border border-[#e0e0e0] dark:border-[#3c3c3c] bg-white dark:bg-[#1e1e1e] shadow-xl overflow-hidden transition-all duration-200 ${
+            snapshot.isDragging ? "z-50 scale-105" : ""
+          }`}
+          style={{
+            ...provided.draggableProps.style,
+            minHeight: 340,
+            maxHeight: 420,
+          }}
+        >
+          <div
+            className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-[#2c2c2c] border-b border-[#e0e0e0] dark:border-[#3c3c3c] select-none cursor-grab active:cursor-grabbing h-8"
+            {...provided.dragHandleProps}
+          >
+            <div className="flex gap-3 items-center flex-1">
+              <span className="font-normal text-sm text-[#0f0f0f] dark:text-white select-none">
+                {title}
+              </span>
+            </div>
+            <div className="flex">
+              <button className="w-[46px] h-8 flex items-center justify-center hover:bg-[#f3f3f3] dark:hover:bg-[#404040] transition-colors">
+                <div className="w-3 h-[1px] bg-[#0f0f0f] dark:bg-white"></div>
+              </button>
+              <button className="w-[46px] h-8 flex items-center justify-center hover:bg-[#f3f3f3] dark:hover:bg-[#404040] transition-colors">
+                <div className="w-2.5 h-2.5 border border-[#0f0f0f] dark:border-white bg-transparent"></div>
+              </button>
+              <button className="w-[46px] h-8 flex items-center justify-center hover:bg-[#c42b1c] hover:text-white transition-colors group">
+                <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                  <path
+                    d="M1 1L11 11M11 1L1 11"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col p-4 sm:p-5 bg-white dark:bg-[#1e1e1e]">
+            {children}
+          </div>
         </div>
-        <span className="font-semibold text-xs text-foreground/80 tracking-wide truncate flex-1">{title}</span>
-        <span className="ml-auto flex gap-1">
-          <span className="inline-block w-2.5 h-2.5 rounded-sm bg-[#e81123] border border-[#a80000] shadow-inner"></span>
-        </span>
-      </div>
-      <div className="flex-1 flex flex-col p-6 sm:p-8">
-        {children}
-      </div>
-    </div>
+      )}
+    </Draggable>
   );
 }
