@@ -7,7 +7,7 @@ import profile from "./profile.json";
 import { EnhancedAboutMeCard } from "./cards/AboutMeCard";
 import { EnhancedFeaturedProjectCard } from "./cards/FeaturedProjectCard";
 import { EnhancedSkillsCard } from "./cards/SkillsCard";
-import { CheerPXCard } from "./cards/CheerPXCard";
+import { CheerPXCard } from "./cards/CheerpXCard";
 import { ContactCard } from "./cards/ContactCard";
 import { useWindowManager } from "@/lib/useWindowManager";
 import { useNasaApod } from "@/lib/useNasaApod";
@@ -103,9 +103,7 @@ export default function Home() {
         className="h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800"
         style={{
           backgroundImage:
-            apod && !apodLoading
-              ? `url(${apod.proxyHdUrl || apod.proxyUrl})`
-              : undefined,
+            apod && !apodLoading ? `url(${apod.hdurl || apod.url})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -318,7 +316,7 @@ export default function Home() {
                   rel="noopener noreferrer"
                   className="text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  CheerPX
+                  CheerpX
                 </a>
               </span>
             </div>
