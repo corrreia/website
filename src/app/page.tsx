@@ -4,6 +4,7 @@ import { EnhancedFeaturedProjectCard } from "./cards/FeaturedProjectCard";
 import { EnhancedSkillsCard } from "./cards/SkillsCard";
 import { CheerPXCard } from "./cards/CheerpXCard";
 import { ContactCard } from "./cards/ContactCard";
+import { ChatCard } from "./cards/ChatCard";
 import { useWindowManager } from "@/lib/useWindowManager";
 import { useNasaApod } from "@/lib/useNasaApod";
 import React, { useEffect } from "react";
@@ -102,6 +103,8 @@ export default function Home() {
           return <CheerPXCard key={id} {...commonProps} />;
         case "contact":
           return <ContactCard key={id} {...commonProps} />;
+        case "chat":
+          return <ChatCard key={id} {...commonProps} />;
         default:
           return null;
       }
