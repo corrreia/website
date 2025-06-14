@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+interface NasaApodData {
+    date: string;
+    explanation: string;
+    hdurl?: string;
+    media_type: 'image' | 'video';
+    service_version: string;
+    title: string;
+    url: string;
+}
+
 export async function GET(request: NextRequest) {
     try {
         const { searchParams } = new URL(request.url);
@@ -24,27 +34,15 @@ export async function GET(request: NextRequest) {
             );
         }
 
-        const apodData = await response.json();
+        const apodData = await response.json() as NasaApodData;
 
-        // Process the data and add our proxy URLs for images
-        if (apodData.media_type === 'image') {
-            const processedData = {
-                ...apodData,
-                proxyUrl: `/api/nasa-image?url=${encodeURIComponent(apodData.url)}`,
-                proxyHdUrl: apodData.hdurl ? `/api/nasa-image?url=${encodeURIComponent(apodData.hdurl)}` : undefined,
-            };
-
-            return NextResponse.json(processedData, {
-                headers: {
-                    'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
-                },
-            });
-        }
-
-        // Return data as-is for non-image content (videos, etc.)
+        // Return the data as-is with proper CORS headers
         return NextResponse.json(apodData, {
             headers: {
-                'Cache-Control': 'public, max-age=3600',
+                'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET',
+                'Access-Control-Allow-Headers': 'Content-Type',
             },
         });
 

@@ -8,9 +8,6 @@ interface ApodData {
     media_type: 'image' | 'video';
     date: string;
     copyright?: string;
-    // Add local proxy URLs for CORS handling
-    proxyUrl?: string;
-    proxyHdUrl?: string;
 }
 
 interface UseNasaApodReturn {
@@ -37,11 +34,10 @@ export function useNasaApod(): UseNasaApodReturn {
                     throw new Error(`API Error: ${response.status}`);
                 }
 
-                const data = await response.json();
+                const data = await response.json() as ApodData;
 
                 // Only use image media type for backgrounds
                 if (data.media_type === 'image') {
-                    // Data already includes proxy URLs from server
                     setApod(data);
                 } else {
                     // If it's a video, we'll use the fallback background

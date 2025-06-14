@@ -26,12 +26,12 @@ export function CheerPXCard({
   const [error, setError] = useState<string | null>(null);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const cxRef = useRef<any>(null); // CheerPX doesn't export proper types
+  const cxRef = useRef<any>(null); // CheerpX doesn't export proper types
 
   useEffect(() => {
     let mounted = true;
 
-    const initializeCheerPX = async () => {
+    const initializeCheerpX = async () => {
       try {
         setIsLoading(true);
 
@@ -39,7 +39,7 @@ export function CheerPXCard({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const CheerpX = (window as any).CheerpX;
         if (!CheerpX) {
-          throw new Error("CheerPX not loaded. Please refresh the page.");
+          throw new Error("CheerpX not loaded. Please refresh the page.");
         }
 
         if (!mounted) return;
@@ -91,10 +91,10 @@ export function CheerPXCard({
           gid: 1000,
         });
       } catch (err) {
-        console.error("CheerPX initialization failed:", err);
+        console.error("CheerpX initialization failed:", err);
         if (mounted) {
           setError(
-            err instanceof Error ? err.message : "Failed to initialize CheerPX"
+            err instanceof Error ? err.message : "Failed to initialize CheerpX"
           );
           setIsLoading(false);
         }
@@ -103,19 +103,19 @@ export function CheerPXCard({
 
     // Only initialize if the window is visible and not minimized
     if (windowState.isVisible && !windowState.isMinimized) {
-      initializeCheerPX();
+      initializeCheerpX();
     }
 
     return () => {
       mounted = false;
-      // Cleanup CheerPX instance if it exists
+      // Cleanup CheerpX instance if it exists
       if (cxRef.current) {
         try {
-          // CheerPX doesn't have a standard cleanup method,
+          // CheerpX doesn't have a standard cleanup method,
           // so we'll just clear the reference
           cxRef.current = null;
         } catch (e) {
-          console.error("Error cleaning up CheerPX:", e);
+          console.error("Error cleaning up CheerpX:", e);
         }
       }
     };
@@ -148,7 +148,7 @@ export function CheerPXCard({
         {error && (
           <div className="absolute inset-0 flex items-center justify-center bg-red-900/20 text-red-200 z-10">
             <div className="text-center p-4">
-              <p className="text-sm font-semibold mb-2">CheerPX Error</p>
+              <p className="text-sm font-semibold mb-2">CheerpX Error</p>
               <p className="text-xs">{error}</p>
               <button
                 onClick={() => window.location.reload()}
