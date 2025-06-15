@@ -42,6 +42,7 @@ export function useChat(): UseChatReturn {
 
             // Check if we have a custom WebSocket host configured
             const customWsHost = process.env.NEXT_PUBLIC_WS_HOST;
+            console.log('WebSocket host:', customWsHost)
 
             let wsUrl: string;
             if (customWsHost) {
