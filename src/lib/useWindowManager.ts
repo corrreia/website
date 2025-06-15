@@ -102,6 +102,16 @@ export function useWindowManager(): WindowManagerReturn {
     }, []);
 
     // Function to check and minimize windows outside viewport
+    // Helper function to get current window configurations  
+    const getCurrentWindowConfigs = useCallback(() => [
+        { id: "contact", title: "Contact Information", width: 420, height: 480, isContact: true },
+        { id: "about", title: "About Me", width: 400, height: 350, isContact: false },
+        { id: "project", title: "OS Information", width: 450, height: 400, isContact: false },
+        { id: "skills", title: "Skills", width: 380, height: 450, isContact: false },
+        { id: "cheerpx", title: "Terminal", width: 700, height: 500, isContact: false },
+        { id: "chat", title: "Global Chat", width: 400, height: 500, isContact: false },
+    ], []);
+
     const checkAndMinimizeOutsideWindows = useCallback(() => {
         if (typeof globalThis === 'undefined' || !globalThis.window) return;
 
@@ -131,11 +141,58 @@ export function useWindowManager(): WindowManagerReturn {
     // Load state from localStorage on mount and check boundaries
     useEffect(() => {
         const stored = loadFromLocalStorage();
+        let currentWindows: Record<string, WindowState> = {};
+        let currentClosedWindows: Record<string, WindowState> = {};
+        let currentMaxZIndex = 1000;
+
         if (stored) {
-            setWindows(stored.windows);
-            setClosedWindows(stored.closedWindows);
-            setMaxZIndex(stored.maxZIndex);
+            currentWindows = { ...stored.windows };
+            currentClosedWindows = { ...stored.closedWindows };
+            currentMaxZIndex = stored.maxZIndex;
+
+            // Check for missing windows that need to be added
+            const currentConfigs = getCurrentWindowConfigs();
+            const existingWindowIds = new Set([
+                ...Object.keys(currentWindows),
+                ...Object.keys(currentClosedWindows)
+            ]);
+
+            const missingConfigs = currentConfigs.filter(config => !existingWindowIds.has(config.id));
+
+            if (missingConfigs.length > 0) {
+                console.log(`Adding ${missingConfigs.length} new windows:`, missingConfigs.map(c => c.id));
+
+                // Generate simple random positions for missing windows
+                const headerHeight = 140;
+                const viewportWidth = globalThis?.window?.innerWidth || 1200;
+                const viewportHeight = globalThis?.window?.innerHeight || 800;
+                const padding = 50;
+
+                missingConfigs.forEach(config => {
+                    // Generate a simple random position for each missing window
+                    const x = Math.random() * (viewportWidth - config.width - padding * 2) + padding;
+                    const y = Math.random() * (viewportHeight - config.height - headerHeight - padding) + headerHeight;
+
+                    const newWindow: WindowState = {
+                        id: config.id,
+                        title: config.title,
+                        x: Math.round(x),
+                        y: Math.round(y),
+                        width: config.width,
+                        height: config.height,
+                        zIndex: ++currentMaxZIndex,
+                        isMinimized: false,
+                        isMaximized: false,
+                        isVisible: true,
+                    };
+                    currentWindows[config.id] = newWindow;
+                });
+            }
         }
+
+        setWindows(currentWindows);
+        setClosedWindows(currentClosedWindows);
+        setMaxZIndex(currentMaxZIndex);
 
         // Set initial viewport size
         if (typeof globalThis !== 'undefined' && globalThis.window) {
@@ -151,7 +208,7 @@ export function useWindowManager(): WindowManagerReturn {
         setTimeout(() => {
             checkAndMinimizeOutsideWindows();
         }, 100);
-    }, [checkAndMinimizeOutsideWindows]);
+    }, [checkAndMinimizeOutsideWindows, getCurrentWindowConfigs]);
 
     // Listen for viewport changes
     useEffect(() => {
@@ -228,14 +285,8 @@ export function useWindowManager(): WindowManagerReturn {
         const viewportHeight = globalThis?.window?.innerHeight || 800;
         const padding = 50; // Minimum distance from screen edges
 
-        // Define window configurations including contact window
-        const allWindowConfigs = [
-            { id: "contact", title: "Contact Information", width: 420, height: 480, isContact: true },
-            { id: "about", title: "About Me", width: 400, height: 350, isContact: false },
-            { id: "project", title: "OS Information", width: 450, height: 400, isContact: false },
-            { id: "skills", title: "Skills", width: 380, height: 450, isContact: false },
-            { id: "cheerpx", title: "Terminal", width: 700, height: 500, isContact: false },
-        ];
+        // Get window configurations
+        const allWindowConfigs = getCurrentWindowConfigs();
 
         const placedWindows: Array<{ x: number; y: number; width: number; height: number; id: string }> = [];
 
@@ -331,7 +382,7 @@ export function useWindowManager(): WindowManagerReturn {
         });
 
         return windowPositions;
-    }, []);
+    }, [getCurrentWindowConfigs]);
 
     // Define closeWindow before it's used in startDrag
     const closeWindow = useCallback((id: string) => {
