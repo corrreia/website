@@ -39,14 +39,20 @@ export function useChat(): UseChatReturn {
         try {
             // Create WebSocket connection to our chat API
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsHost = process.env.NEXT_PUBLIC_WS_HOST || window.location.host;
 
-            // For development, connect directly to the worker root
-            // For production, this would connect to the deployed worker
-            const wsUrl = process.env.NEXT_PUBLIC_WS_HOST
-                ? `${protocol}//${wsHost}/ws`  // Direct to worker in development
-                : `${protocol}//${wsHost}/api/chat`;  // Through Next.js API in production
+            // Check if we have a custom WebSocket host configured
+            const customWsHost = process.env.NEXT_PUBLIC_WS_HOST;
 
+            let wsUrl: string;
+            if (customWsHost) {
+                // Use the configured WebSocket host (could be localhost:8787 or production worker URL)
+                wsUrl = `${protocol}//${customWsHost}/ws`;
+            } else {
+                // Fallback to Next.js API route
+                wsUrl = `${protocol}//${window.location.host}/api/chat`;
+            }
+
+            console.log('Connecting to WebSocket:', wsUrl);
             const ws = new WebSocket(wsUrl);
             wsRef.current = ws;
 
