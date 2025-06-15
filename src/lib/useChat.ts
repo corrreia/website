@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface ChatMessage {
-    type: 'message' | 'welcome' | 'user_joined' | 'user_left';
-    username: string;
-    message: string;
-    timestamp: number;
+    type: 'message' | 'welcome' | 'join' | 'quit';
+    username?: string;
+    message?: string;
+    timestamp?: number;
 }
 
 export interface UseChatReturn {
@@ -39,7 +39,13 @@ export function useChat(): UseChatReturn {
         try {
             // Create WebSocket connection to our chat API
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/api/chat`;
+            const wsHost = process.env.NEXT_PUBLIC_WS_HOST || window.location.host;
+
+            // For development, connect directly to the worker root
+            // For production, this would connect to the deployed worker
+            const wsUrl = process.env.NEXT_PUBLIC_WS_HOST
+                ? `${protocol}//${wsHost}/ws`  // Direct to worker in development
+                : `${protocol}//${wsHost}/api/chat`;  // Through Next.js API in production
 
             const ws = new WebSocket(wsUrl);
             wsRef.current = ws;
@@ -56,7 +62,7 @@ export function useChat(): UseChatReturn {
                     const data = JSON.parse(event.data) as ChatMessage;
 
                     // Set username when we get the welcome message
-                    if (data.type === 'welcome') {
+                    if (data.type === 'welcome' && data.username) {
                         setUsername(data.username);
                     }
 
@@ -117,7 +123,7 @@ export function useChat(): UseChatReturn {
     const sendMessage = useCallback((message: string) => {
         if (wsRef.current?.readyState === WebSocket.OPEN && message.trim()) {
             wsRef.current.send(JSON.stringify({
-                type: 'chat',
+                type: 'message',
                 message: message.trim(),
             }));
         }

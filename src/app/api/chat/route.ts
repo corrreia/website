@@ -1,19 +1,22 @@
 import { NextRequest } from 'next/server';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export async function GET(request: NextRequest) {
     try {
-        // In the Cloudflare Workers environment, we access the env through the context
-        // For OpenNext on Cloudflare, we need to check the runtime context differently
-        const runtime = process.env.NEXTJS_ENV;
+        // Get Cloudflare context to access environment bindings
+        const cf = await getCloudflareContext();
 
-        if (runtime === 'production' && typeof globalThis !== 'undefined' && 'CHAT_ROOM' in globalThis) {
-            const chatRoomNamespace = (globalThis as Record<string, unknown>).CHAT_ROOM as DurableObjectNamespace;
-
+        if (cf?.env?.WEBSITE_DO) {
             // Create or get the chat room instance (using a fixed ID for global chat)
-            const chatRoomId = chatRoomNamespace.idFromName('global-chat');
-            const chatRoom = chatRoomNamespace.get(chatRoomId);
+            const chatRoomId = cf.env.WEBSITE_DO.idFromName('global-chat');
+            const chatRoom = cf.env.WEBSITE_DO.get(chatRoomId);
 
-            // Forward the request to the Durable Object
+            // Handle WebSocket upgrade
+            if (request.headers.get('Upgrade') === 'websocket') {
+                return await chatRoom.fetch(request);
+            }
+
+            // Handle regular HTTP requests (status checks)
             return await chatRoom.fetch(request);
         }
 
@@ -26,7 +29,10 @@ export async function GET(request: NextRequest) {
         }), {
             status: 503,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'GET, OPTIONS',
+                'Access-Control-Allow-Headers': 'Content-Type, Upgrade, Connection, Sec-WebSocket-Key, Sec-WebSocket-Version, Sec-WebSocket-Protocol',
             }
         });
     } catch (error) {
@@ -37,7 +43,8 @@ export async function GET(request: NextRequest) {
         }), {
             status: 500,
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
             }
         });
     }

@@ -57,7 +57,8 @@ export function ChatCard({
     }
   };
 
-  const formatTime = (timestamp: number) => {
+  const formatTime = (timestamp?: number) => {
+    if (!timestamp) return "";
     return new Date(timestamp).toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
@@ -68,9 +69,9 @@ export function ChatCard({
     switch (message.type) {
       case "welcome":
         return "text-blue-600 dark:text-blue-400 font-medium";
-      case "user_joined":
+      case "join":
         return "text-green-600 dark:text-green-400 text-sm";
-      case "user_left":
+      case "quit":
         return "text-red-600 dark:text-red-400 text-sm";
       default:
         return "text-foreground";
@@ -78,7 +79,7 @@ export function ChatCard({
   };
 
   const isSystemMessage = (message: ChatMessage) => {
-    return ["welcome", "user_joined", "user_left"].includes(message.type);
+    return ["welcome", "join", "quit"].includes(message.type);
   };
 
   return (
@@ -158,14 +159,14 @@ export function ChatCard({
                 <>
                   <div className="flex items-baseline gap-2 mb-1">
                     <span className="font-medium text-sm text-primary">
-                      {message.username}
+                      {message.username || "Unknown"}
                     </span>
                     <span className="text-xs text-muted-foreground">
                       {formatTime(message.timestamp)}
                     </span>
                   </div>
                   <div className="text-sm text-foreground break-words">
-                    {message.message}
+                    {message.message || ""}
                   </div>
                 </>
               )}

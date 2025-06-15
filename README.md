@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Real-Time Chat Website
 
-## Getting Started
+A Next.js website with real-time chat functionality using Cloudflare Durable Objects and Workers.
 
-First, run the development server:
+## Architecture
+
+- **Main App**: Next.js website deployed on Cloudflare Workers
+- **Chat Service**: Durable Object worker for real-time WebSocket chat
+- **Database**: In-memory storage with WebSocket state persistence
+
+## Development
+
+### Prerequisites
+
+- Node.js 18+
+- Cloudflare account
+- Wrangler CLI installed
+
+### Setup
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Set up environment variables:
+
+```bash
+cp env.example .env.local
+```
+
+3. Generate Cloudflare types:
+
+```bash
+npm run cf-typegen
+```
+
+### Development Mode
+
+1. Start the durable object worker:
+
+```bash
+cd durable-object
+npm run dev
+```
+
+2. In another terminal, start the main Next.js app:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Deploy the Durable Object Worker
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+First, deploy the chat service:
 
-## Learn More
+```bash
+cd durable-object
+npm run deploy
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Deploy the Main Application
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Deploy the Next.js website:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run deploy
+```
 
-## Deploy on Vercel
+## Features
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Real-time messaging**: WebSocket-based chat with instant message delivery
+- **Auto-generated usernames**: Random username assignment for anonymous chat
+- **Connection status**: Visual indicators for connection state
+- **Message history**: Persistent chat history during active sessions
+- **User join/leave notifications**: Real-time notifications when users connect/disconnect
+- **Message validation**: Input sanitization and length limits
+- **Auto-reconnection**: Automatic WebSocket reconnection on connection loss
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Chat System Details
+
+The chat system is built using:
+
+- **Durable Objects**: For WebSocket state management and message broadcasting
+- **WebSocket API**: Real-time bidirectional communication
+- **Next.js API Routes**: WebSocket upgrade handling
+- **React Hooks**: Client-side state management and real-time updates
+
+### Message Types
+
+- `welcome`: Sent when a user first connects
+- `join`: Broadcast when a new user joins the chat
+- `quit`: Broadcast when a user leaves the chat
+- `message`: Regular chat messages between users
+
+## Configuration
+
+The system uses these key configuration files:
+
+- `wrangler.jsonc`: Main app configuration with durable object bindings
+- `durable-object/wrangler.jsonc`: Durable object worker configuration
+- `durable-object/src/index.ts`: WebSocket chat implementation
+
+## Local Development Notes
+
+WebSocket functionality requires deployment to Cloudflare to work properly. In local development, the chat component will show a "development mode" message.
