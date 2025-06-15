@@ -14,7 +14,7 @@
   },
   "workspaces": [
     ".",
-    "durable-object"
+    "website-do"
   ],
   "dependencies": {
     "@opennextjs/cloudflare": "^1.2.1",

@@ -27,14 +27,14 @@
             {
                 "name": "WEBSITE_DO",
                 "class_name": "WebsiteDO",
-                "script_name": "worker"
+                "script_name": "website-do"
             }
         ]
     },
     "services": [
         {
             "binding": "CHAT_SERVICE",
-            "service": "worker"
+            "service": "website-do"
         }
     ]
 }

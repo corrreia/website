@@ -6,7 +6,7 @@ echo "🚀 Deploying Real-Time Chat System to Cloudflare..."
 
 # Step 1: Deploy the Durable Object Worker first
 echo "📦 Step 1: Deploying Durable Object Worker..."
-cd durable-object
+cd website-do
 npm run deploy
 echo "✅ Durable Object Worker deployed successfully!"
 
