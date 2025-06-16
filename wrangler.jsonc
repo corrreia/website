@@ -20,7 +20,7 @@
     },
     "vars": {
         "NEXTJS_ENV": "production",
-        "NEXT_PUBLIC_WS_HOST": "website-do.tom-s-correia4779.workers.dev"
+        "CHAT_SERVICE_HOST": "website-do.tom-s-correia4779.workers.dev"
     },
     "durable_objects": {
         "bindings": [

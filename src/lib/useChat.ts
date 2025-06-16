@@ -41,7 +41,7 @@ export function useChat(): UseChatReturn {
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 
             // Check if we have a custom WebSocket host configured
-            const customWsHost = process.env.NEXT_PUBLIC_WS_HOST;
+            const customWsHost = process.env.CHAT_SERVICE_HOST;
             console.log('WebSocket host:', customWsHost)
 
             let wsUrl: string;
