@@ -41,7 +41,7 @@ yarn-error.log*
 # cloudflare
 .dev.vars
 .open-next/
-cloudflare-env.d.ts
+# cloudflare-env.d.ts this should not be ignored
 
 # typescript
 *.tsbuildinfo
