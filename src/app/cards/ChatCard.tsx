@@ -28,6 +28,7 @@ export function ChatCard({
     isConnected,
     isConnecting,
     username,
+    userCount,
     sendMessage,
     connect,
     error,
@@ -99,6 +100,11 @@ export function ChatCard({
           <div className="flex items-center gap-2">
             <Users className="h-4 w-4 text-muted-foreground" />
             <span className="font-medium text-sm">Global Chat</span>
+            {isConnected && userCount > 0 && (
+              <span className="text-xs text-muted-foreground px-2 py-1 bg-background rounded-full">
+                {userCount} online
+              </span>
+            )}
             {username && (
               <span className="text-xs text-muted-foreground">
                 ({username})

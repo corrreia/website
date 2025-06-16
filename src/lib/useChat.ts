@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 export interface ChatMessage {
-    type: 'message' | 'welcome' | 'join' | 'quit';
+    type: 'message' | 'welcome' | 'join' | 'quit' | 'user_count';
     username?: string;
     message?: string;
     timestamp?: number;
+    userCount?: number;
 }
 
 export interface UseChatReturn {
@@ -12,6 +13,7 @@ export interface UseChatReturn {
     isConnected: boolean;
     isConnecting: boolean;
     username: string | null;
+    userCount: number;
     sendMessage: (message: string) => void;
     connect: () => void;
     disconnect: () => void;
@@ -23,6 +25,7 @@ export function useChat(): UseChatReturn {
     const [isConnected, setIsConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
     const [username, setUsername] = useState<string | null>(null);
+    const [userCount, setUserCount] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
     const wsRef = useRef<WebSocket | null>(null);
     const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -74,8 +77,15 @@ export function useChat(): UseChatReturn {
                         setUsername(data.username);
                     }
 
-                    // Add message to chat
-                    setMessages(prev => [...prev, data]);
+                    // Update user count when we get user_count message
+                    if (data.type === 'user_count' && data.userCount !== undefined) {
+                        setUserCount(data.userCount);
+                    }
+
+                    // Add message to chat (except user_count messages which are only for data)
+                    if (data.type !== 'user_count') {
+                        setMessages(prev => [...prev, data]);
+                    }
                 } catch (err) {
                     console.error('Error parsing chat message:', err);
                 }
@@ -125,6 +135,7 @@ export function useChat(): UseChatReturn {
         setIsConnected(false);
         setIsConnecting(false);
         setUsername(null);
+        setUserCount(0);
         setMessages([]);
     }, []);
 
@@ -149,6 +160,7 @@ export function useChat(): UseChatReturn {
         isConnected,
         isConnecting,
         username,
+        userCount,
         sendMessage,
         connect,
         disconnect,
