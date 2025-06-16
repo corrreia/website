@@ -7,16 +7,17 @@ import { ContactCard } from "./cards/ContactCard";
 import { ChatCard } from "./cards/ChatCard";
 import { useWindowManager } from "@/lib/useWindowManager";
 import { useNasaApod } from "@/lib/useNasaApod";
-import React, { useEffect } from "react";
+import React from "react";
 
 // Import the new components
 import { HeaderCard } from "@/components/HeaderCard";
 import { ApodInfoPanel } from "@/components/ApodInfoPanel";
 import { DesktopInstructions } from "@/components/DesktopInstructions";
-import { RestorePanel } from "@/components/RestorePanel";
+
 import { FooterCard } from "@/components/FooterCard";
 import { ApodStatusIndicators } from "@/components/ApodStatusIndicators";
 import { BackgroundOverlay } from "@/components/BackgroundOverlay";
+import { DesktopIcons } from "@/components/DesktopIcons";
 
 export default function Home() {
   const windowManager = useWindowManager();
@@ -30,53 +31,7 @@ export default function Home() {
     canGoForward,
   } = useNasaApod();
 
-  // Initialize windows on component mount
-  useEffect(() => {
-    // Only add default windows if windowManager is initialized and no windows exist
-    if (windowManager.isInitialized) {
-      const totalWindows =
-        Object.keys(windowManager.windows).length +
-        Object.keys(windowManager.closedWindows).length;
-
-      if (totalWindows === 0) {
-        // Generate random positions for all windows (including contact)
-        const windowPositions = windowManager.generateRandomWindowPositions();
-
-        // Add non-contact windows first
-        windowPositions
-          .filter((w) => !w.isContact)
-          .forEach((windowConfig) => {
-            windowManager.addWindow({
-              id: windowConfig.id,
-              title: windowConfig.title,
-              x: windowConfig.x,
-              y: windowConfig.y,
-              width: windowConfig.width,
-              height: windowConfig.height,
-              isMinimized: false,
-              isMaximized: false,
-              isVisible: true,
-            });
-          });
-
-        // Add contact window LAST to ensure highest z-index (always on top)
-        const contactWindow = windowPositions.find((w) => w.isContact);
-        if (contactWindow) {
-          windowManager.addWindow({
-            id: contactWindow.id,
-            title: contactWindow.title,
-            x: contactWindow.x,
-            y: contactWindow.y,
-            width: contactWindow.width,
-            height: contactWindow.height,
-            isMinimized: false,
-            isMaximized: false,
-            isVisible: true,
-          });
-        }
-      }
-    }
-  }); // React when initialization completes
+  // Window manager is now responsible for initial window creation
 
   const renderWindows = () => {
     return Object.entries(windowManager.windows).map(([id, windowState]) => {
@@ -126,7 +81,7 @@ export default function Home() {
       >
         {/* Header Card - Non-movable */}
         <HeaderCard
-          onContactClick={() => windowManager.showWindowCentered("contact")}
+          onContactClick={() => windowManager.openWindow("contact")}
         />
         {/* Overlay for better contrast */}
         <BackgroundOverlay hasApod={!!apod} isLoading={apodLoading} />
@@ -153,10 +108,10 @@ export default function Home() {
           />
         )}
 
-        {/* Restore Panel */}
-        <RestorePanel
-          closedWindows={windowManager.closedWindows}
-          onRestoreWindow={windowManager.restoreWindow}
+        {/* Desktop Icons */}
+        <DesktopIcons
+          openWindow={windowManager.openWindow}
+          openWindows={windowManager.windows}
         />
 
         {/* Footer Card - Non-movable */}
