@@ -59,7 +59,7 @@ export function EnhancedFeaturedProjectCard({
                 Cloudflare Durable Objects
               </span>
               <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded text-xs">
-                Cloudflare Pages
+                Cloudflare Workers
               </span>
             </div>
           </div>
