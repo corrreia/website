@@ -1,30 +1,29 @@
-# Real-Time Chat Website
+# My Personal Portfolio
 
-A Next.js website with real-time chat functionality using Cloudflare Durable Objects and Workers.
+This is my personal portfolio website, built with **Next.js**.  
+It was one of my first projects using Next.js, and with the help of **Cursor** and **ChatGPT**, I was able to create something interactive and unique.  
 
-## Architecture
+I wanted the site to feel different from a standard portfolio, and I think I managed to achieve that.
 
-- **Main App**: Next.js website deployed on Cloudflare Workers
-- **Chat Service**: Durable Object worker for real-time WebSocket chat
-- **Database**: In-memory storage with WebSocket state persistence (via Cloudflare Durable Objects)
+---
 
 ## Features
+- Interactive and unique design
+- Built with **Next.js**
+- Integrates with some external APIs and has some dynamic content, i plan to add more.
 
-- **Real-time messaging**: WebSocket-based chat with instant message delivery
-- **Auto-generated usernames**: Random username assignment for anonymous chat
-- **Connection status**: Visual indicators for connection state
-- **Message history**: Persistent chat history during active sessions (mo messages are storesd)
-- **User join/leave notifications**: Real-time notifications when users connect/disconnect
-- **Message validation**: Input sanitization and length limits
-- **Auto-reconnection**: Automatic WebSocket reconnection on connection loss
-- **NASA APOD**: Diferent backgrounds every day!
+---
 
-## Chat System Details
+## Known Issues / Future Improvements
+- **NASA Image of the Day**  
+  - Loads slowly due to the API response time  
+  - Plan: implement a caching layer to improve performance  
 
-The chat system is built using:
+- **Cherpex VM**  
+  - Occasionally does not start immediately  
+  - Plan: fix startup reliability and possibly create a custom Debian image for loading  
 
-- **Durable Objects**: For WebSocket state management and message broadcasting
-- **WebSocket API**: Real-time bidirectional communication
-- **Next.js API Routes**: WebSocket upgrade handling
-- **React Hooks**: Client-side state management and real-time updates
+---
 
+## Notes
+This portfolio is still evolving, and I’ll continue to improve its performance and features over time.
