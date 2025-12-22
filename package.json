@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "deploy": "opennextjs-cloudflare build && node scripts/patch-worker.js && opennextjs-cloudflare deploy",
-    "preview": "opennextjs-cloudflare build && node scripts/patch-worker.js && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && node scripts/patch-worker.js && node scripts/verify-do-export.js && opennextjs-cloudflare deploy",
+    "preview": "opennextjs-cloudflare build && node scripts/patch-worker.js && node scripts/verify-do-export.js && opennextjs-cloudflare preview",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
-    "patch-worker": "node scripts/patch-worker.js"
+    "patch-worker": "node scripts/patch-worker.js",
+    "verify-do": "node scripts/verify-do-export.js"
   },
   "dependencies": {
     "@opennextjs/cloudflare": "^1.3.0",
