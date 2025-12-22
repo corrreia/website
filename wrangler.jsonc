@@ -6,7 +6,7 @@
     "$schema": "node_modules/wrangler/config-schema.json",
     "name": "website",
     "main": ".open-next/worker.js",
-    "compatibility_date": "2025-05-05",
+    "compatibility_date": "2024-12-01",
     "compatibility_flags": [
         "nodejs_compat",
         "global_fetch_strictly_public"
@@ -19,22 +19,20 @@
         "enabled": true
     },
     "vars": {
-        "NEXTJS_ENV": "production",
-        "NEXT_PUBLIC_CHAT_SERVICE_HOST": "website-do.correia.workers.dev"
+        "NEXTJS_ENV": "production"
     },
     "durable_objects": {
         "bindings": [
             {
                 "name": "WEBSITE_DO",
-                "class_name": "WebsiteDO",
-                "script_name": "website-do"
+                "class_name": "WebsiteDO"
             }
         ]
     },
-    "services": [
+    "migrations": [
         {
-            "binding": "CHAT_SERVICE",
-            "service": "website-do"
+            "tag": "v1",
+            "new_classes": ["WebsiteDO"]
         }
     ]
 }
