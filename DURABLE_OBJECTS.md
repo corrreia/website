@@ -65,3 +65,19 @@ The `WebsiteDO` Durable Object provides:
 - Active user count tracking
 - Automatic username generation
 - Session persistence across reconnections
+
+## Troubleshooting
+
+If you encounter issues like "Server failed to respond", see [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) for detailed debugging steps.
+
+Quick checks:
+```bash
+# Verify DO export after build
+npm run verify-do
+
+# View worker logs
+npx wrangler tail
+
+# Test the API endpoint
+curl https://your-domain.com/api/chat
+```

@@ -6,10 +6,19 @@ export async function GET(request: NextRequest) {
         // Get Cloudflare context to access environment bindings
         const cf = await getCloudflareContext();
 
+        console.log('Chat API - Cloudflare context:', {
+            hasContext: !!cf,
+            hasEnv: !!cf?.env,
+            hasWebsiteDO: !!cf?.env?.WEBSITE_DO,
+            envKeys: cf?.env ? Object.keys(cf.env) : []
+        });
+
         if (cf?.env?.WEBSITE_DO) {
             // Create or get the chat room instance (using a fixed ID for global chat)
             const chatRoomId = cf.env.WEBSITE_DO.idFromName('global-chat');
             const chatRoom = cf.env.WEBSITE_DO.get(chatRoomId);
+
+            console.log('Chat API - Forwarding request to Durable Object');
 
             // Handle WebSocket upgrade
             if (request.headers.get('Upgrade') === 'websocket') {
@@ -21,11 +30,17 @@ export async function GET(request: NextRequest) {
         }
 
         // For development/local testing, return a mock response with connection info
+        console.log('Chat API - WEBSITE_DO not available, returning development response');
         return new Response(JSON.stringify({
-            error: 'Chat service not available in development mode',
-            message: 'Real-time chat is only available when deployed to Cloudflare',
+            error: 'Chat service not available',
+            message: 'Durable Object binding (WEBSITE_DO) not found. This could mean: 1) Running in development mode, 2) DO not properly deployed, or 3) Binding configuration issue',
             activeConnections: 0,
-            status: 'development'
+            status: 'unavailable',
+            debug: {
+                hasCloudflareContext: !!cf,
+                hasEnv: !!cf?.env,
+                envKeys: cf?.env ? Object.keys(cf.env) : []
+            }
         }), {
             status: 503,
             headers: {
@@ -39,7 +54,8 @@ export async function GET(request: NextRequest) {
         console.error('Error in chat route:', error);
         return new Response(JSON.stringify({
             error: 'Internal Server Error',
-            message: error instanceof Error ? error.message : 'Unknown error'
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack: error instanceof Error ? error.stack : undefined
         }), {
             status: 500,
             headers: {
