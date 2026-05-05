@@ -1,0 +1,46 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export function getStaticPaths() {
+	const postModules = import.meta.glob("../../content/blog/**/index.md", { eager: true });
+	return Object.entries(postModules).map(([path, post]) => {
+		const module = post as { frontmatter: Record<string, any> };
+		const folder = path.split("/").at(-2) ?? "";
+		return {
+			params: { slug: module.frontmatter.slug ?? folder },
+			props: { post: module },
+		};
+	});
+}
+
+const { post } = Astro.props as {
+	post: {
+		Content: any;
+		frontmatter: Record<string, any>;
+	};
+};
+const { Content, frontmatter } = post;
+const date = new Date(frontmatter.date);
+---
+
+<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+	<main class="article-wrap">
+		<article class="article">
+			<header>
+				<a class="back-link" href="/blog/">Back to blog</a>
+				<h1>{frontmatter.title}</h1>
+				<p class="article-meta">
+					{date.toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" })}
+				</p>
+				{frontmatter.tags?.length > 0 && (
+					<ul class="tags" aria-label="Tags">
+						{frontmatter.tags.map((tag: string) => <li>{tag}</li>)}
+					</ul>
+				)}
+			</header>
+			<div class="prose">
+				<Content />
+			</div>
+		</article>
+	</main>
+</BaseLayout>

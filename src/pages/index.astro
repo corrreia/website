@@ -1,0 +1,54 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const postModules = import.meta.glob("../content/blog/**/index.md", { eager: true });
+const posts = Object.entries(postModules)
+	.map(([path, post]) => {
+		const module = post as { frontmatter: Record<string, any> };
+		const folder = path.split("/").at(-2) ?? "";
+		return {
+			slug: module.frontmatter.slug ?? folder,
+			title: module.frontmatter.title,
+			description: module.frontmatter.description,
+			date: new Date(module.frontmatter.date),
+		};
+	})
+	.sort((a, b) => b.date.valueOf() - a.date.valueOf())
+	.slice(0, 3);
+---
+
+<BaseLayout>
+	<main>
+		<section class="hero reveal">
+			<h1>
+				<span class="accent-italic">Tomás</span> Correia
+			</h1>
+			<p class="hero-role">
+				Engineering @ <a href="https://en.institutional.meo.pt/">MEO</a>
+			</p>
+			<p class="hero-tags">
+				WebDev <span class="sep">·</span> Homelabbing <span class="sep">·</span> Home automation
+			</p>
+		</section>
+
+		<section class="section">
+			<div class="section-heading">
+				<h2>Latest Posts</h2>
+				<a class="more-link" href="/blog/">
+					All posts <span class="arrow" aria-hidden="true">→</span>
+				</a>
+			</div>
+			<div class="post-list">
+				{posts.map((post) => (
+					<article class="post-card">
+						<div class="post-card-body">
+							<p>{post.date.toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" })}</p>
+							<h3><a href={`/blog/${post.slug}/`}>{post.title}</a></h3>
+							{post.description && <p>{post.description}</p>}
+						</div>
+					</article>
+				))}
+			</div>
+		</section>
+	</main>
+</BaseLayout>
