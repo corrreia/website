@@ -4,11 +4,17 @@
  */
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "astro-blog",
+	"name": "website",
 	"compatibility_date": "2025-08-29",
 	"assets": {
 		"directory": "./dist"
 	},
+	"routes": [
+		{
+			"pattern": "tomascorreia.net",
+			"custom_domain": true
+		}
+	],
 	"observability": {
 		"enabled": true
 	}
