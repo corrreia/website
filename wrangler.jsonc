@@ -6,8 +6,17 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "website",
 	"compatibility_date": "2025-08-29",
+	"main": "./src/worker.ts",
 	"assets": {
-		"directory": "./dist"
+		"directory": "./dist",
+		"binding": "ASSETS",
+		/**
+		 * Every request runs through src/worker.ts first, so it can answer
+		 * `Accept: text/markdown` with the markdown twin of a page and attach
+		 * Link headers. Anything it does not handle falls through to the
+		 * static assets unchanged.
+		 */
+		"run_worker_first": true
 	},
 	"routes": [
 		{
