@@ -55,12 +55,12 @@ reach the Worker before the asset server.
 
 ### AI crawler policy
 
-`src/pages/robots.txt.ts` holds the policy in two lists:
+Everything is allowed: search, answer engines, and model training. The policy
+lives in `src/pages/robots.txt.ts` as two lists, both `Allow: /`:
 
-- `ALLOWED_AGENTS` — search and answer engines that cite sources: `Allow: /`.
-- `TRAINING_AGENTS` — crawlers and opt-out tokens used for model training:
-  `Disallow: /`.
+- `SEARCH_AGENTS` — search and answer engines.
+- `TRAINING_AGENTS` — crawlers and opt-out tokens used for model training.
 
-Both groups carry `Content-Signal: search=yes, ai-input=yes, ai-train=no`, which
-states the same preference declaratively. To change the policy, move a
-user-agent between the two lists, or edit `CONTENT_SIGNAL`.
+Both groups carry `Content-Signal: search=yes, ai-input=yes, ai-train=yes`,
+which states the same permission declaratively. To withdraw a permission, edit
+`CONTENT_SIGNAL` and switch the matching group to `Disallow: /`.

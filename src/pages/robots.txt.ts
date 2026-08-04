@@ -7,16 +7,15 @@ import type { APIContext } from "astro";
  * Format: RFC 9309 (https://www.rfc-editor.org/rfc/rfc9309)
  * Content Signals: https://contentsignals.org/
  *
- * Policy: the site is fully open to crawlers that index or cite it, and
- * closed to crawlers whose only purpose is collecting training data. The
- * Content-Signal line states the same preference declaratively, for agents
- * that read it.
+ * Policy: the site is open to every crawler, for search, for answering
+ * questions, and for model training. The Content-Signal line states the same
+ * permission declaratively, for agents that read it.
  */
 
-const CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=no";
+const CONTENT_SIGNAL = "search=yes, ai-input=yes, ai-train=yes";
 
-/** Crawlers that index the site or fetch it to answer a question, with attribution. */
-const ALLOWED_AGENTS = [
+/** Crawlers that index the site or fetch it to answer a question. */
+const SEARCH_AGENTS = [
 	"Googlebot",
 	"Bingbot",
 	"DuckDuckBot",
@@ -30,9 +29,9 @@ const ALLOWED_AGENTS = [
 ];
 
 /**
- * Crawlers and opt-out tokens that exist to gather model training data.
- * Disallowing these is the enforcement half of `ai-train=no`; none of them
- * affect search visibility.
+ * Crawlers and opt-out tokens used to gather model training data. Listed
+ * explicitly, and allowed, so the permission is unambiguous to anything that
+ * reads only the user-agent rules and ignores Content-Signal.
  */
 const TRAINING_AGENTS = [
 	"GPTBot",
@@ -59,20 +58,19 @@ export const GET = ({ site }: APIContext) => {
 # Syntax: RFC 9309 <https://www.rfc-editor.org/rfc/rfc9309>
 #
 # Content-Signal declares how this content may be used once accessed
-# <https://contentsignals.org/>. It is a statement of preference, not an
-# access control:
+# <https://contentsignals.org/>:
 #   search=yes    indexing and linking back here is welcome
-#   ai-input=yes  fetching at answer time is welcome, with attribution
-#   ai-train=no   do not use this content to train or fine-tune models
+#   ai-input=yes  fetching at answer time is welcome
+#   ai-train=yes  using this content to train or fine-tune models is welcome
 
 # Everything on this site is public. Nothing here is private or paywalled.
 ${group(["*"], "Allow: /")}
 
-# Search engines and answer engines that cite their sources.
-${group(ALLOWED_AGENTS, "Allow: /")}
+# Search engines and answer engines.
+${group(SEARCH_AGENTS, "Allow: /")}
 
-# Training-data collection. See ai-train=no above.
-${group(TRAINING_AGENTS, "Disallow: /")}
+# AI crawlers, including training-data collection. See ai-train=yes above.
+${group(TRAINING_AGENTS, "Allow: /")}
 
 Sitemap: ${new URL("/sitemap.xml", origin).href}
 `;
