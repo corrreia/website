@@ -13,6 +13,12 @@ const {
 } = Astro.props;
 const pageTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
 const isHome = Astro.url.pathname === "/";
+
+// Canonical URL, and the markdown twin of this page served by src/worker.ts
+// to agents that send `Accept: text/markdown`.
+const pathname = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : `${Astro.url.pathname}/`;
+const canonical = new URL(pathname, Astro.site ?? Astro.url).href;
+const markdownHref = `${pathname}index.md`;
 ---
 
 <!doctype html>
@@ -24,6 +30,9 @@ const isHome = Astro.url.pathname === "/";
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={description} />
 		<meta property="og:image" content="/img/social.png" />
+		<meta property="og:url" content={canonical} />
+		<link rel="canonical" href={canonical} />
+		<link rel="alternate" type="text/markdown" href={markdownHref} title="Markdown version" />
 		<link rel="icon" href="/favicon.ico" />
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
