@@ -88,7 +88,7 @@ This is actually a really simple process, after installing the [`talosctl`](http
 
 1. **Generate the secrets**:
 
-```
+```bash
 talosctl gen secrets -o secrets.yaml
 ```
 
@@ -96,7 +96,7 @@ This generated the `secrets.yaml` file, which contains the necessary secrets for
 
 2. **Generate the configuration files**:
 
-```
+```bash
 talosctl gen config name-of-cluster https://10.10.0.50:6443 \
   --with-secrets secrets.yaml \
   --install-disk /dev/sda \
@@ -105,7 +105,7 @@ talosctl gen config name-of-cluster https://10.10.0.50:6443 \
 
 Point `talosctl` to the correct configuration directory:
 
-```
+```bash
 export TALOSCONFIG=$PWD/clusterconfig/talosconfig
 ```
 
@@ -127,7 +127,7 @@ machine:
 
 Then, we can apply the configuration to each node:
 
-```
+```bash
 # control planes (one by one)
 talosctl apply-config --insecure -n 10.10.0.51 -f clusterconfig/controlplane.yaml
 talosctl apply-config --insecure -n 10.10.0.52 -f clusterconfig/controlplane.yaml
@@ -142,21 +142,21 @@ By now, your nodes should be installing and rebooting.
 
 Setting up `talosctl` endpoints:
 
-```
+```bash
 talosctl config endpoint 10.10.0.51 10.10.0.52 10.10.0.53
 talosctl config nodes 10.10.0.51
 ```
 
 4. **Bootstrapping the cluster**:
 
-```
+```bash
 talosctl bootstrap -n 10.10.0.51
 talos health
 ```
 
 And boom! Your Talos cluster is up and running with k8s installed.
 
-```
+```bash
 correia@talos-ctl:~/talos$ talosctl get members
 NODE         NAMESPACE   TYPE     ID              VERSION   HOSTNAME        MACHINE TYPE   OS                ADDRESSES
 10.10.0.51   cluster     Member   talos-9gj-92t   2         talos-9gj-92t   controlplane   Talos (v1.10.7)   ["10.10.0.50","10.10.0.51","2001:ipv6::11ff:fe02:3ff6"]
@@ -172,7 +172,7 @@ Now that your Talos cluster is up and running with k8s installed, you can access
 
 1. **Get the kubeconfig file**:
 
-```
+```bash
 talosctl kubeconfig -n 10.10.0.51 -f clusterconfig/kubeconfig --force
 ```
 
@@ -181,13 +181,13 @@ talosctl kubeconfig -n 10.10.0.51 -f clusterconfig/kubeconfig --force
 
 2. **Set the KUBECONFIG environment variable**:
 
-```
+```bash
 export KUBECONFIG=$PWD/clusterconfig/kubeconfig
 ```
 
 3. **Verify the connection**:
 
-```
+```bash
 correia@talos-ctl:~/talos$ kubectl get nodes
 NAME            STATUS   ROLES           AGE     VERSION
 talos-9gj-92t   Ready    control-plane   5h39m   v1.33.4

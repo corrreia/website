@@ -1,20 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { formatDate, getPosts, getTags, tagHref } from "../../lib/blog";
 
-const postModules = import.meta.glob("../../content/blog/**/index.md", { eager: true });
-const posts = Object.entries(postModules)
-	.map(([path, post]) => {
-		const module = post as { frontmatter: Record<string, any> };
-		const folder = path.split("/").at(-2) ?? "";
-		return {
-			slug: module.frontmatter.slug ?? folder,
-			title: module.frontmatter.title,
-			description: module.frontmatter.description,
-			date: new Date(module.frontmatter.date),
-			tags: module.frontmatter.tags ?? [],
-		};
-	})
-	.sort((a, b) => b.date.valueOf() - a.date.valueOf());
+const posts = await getPosts();
+const tags = await getTags();
 ---
 
 <BaseLayout title="Blog" description="Posts about homelab projects and technical experiments.">
@@ -24,16 +13,26 @@ const posts = Object.entries(postModules)
 			<p>Notes on homelab projects, infrastructure, and the occasional debugging session.</p>
 		</section>
 
+		{tags.length > 0 && (
+			<nav class="tag-cloud" aria-label="Browse by tag">
+				{tags.map((tag) => (
+					<a href={tagHref(tag.name)}>{tag.name} <span class="tag-count">{tag.posts.length}</span></a>
+				))}
+			</nav>
+		)}
+
 		<div class="post-list">
 			{posts.map((post) => (
 				<article class="post-card">
 					<div class="post-card-body">
-						<p>{post.date.toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" })}</p>
-						<h2><a href={`/blog/${post.slug}/`}>{post.title}</a></h2>
+						<p>{formatDate(post.date)} <span class="sep">·</span> {post.readingMinutes} min read</p>
+						<h2><a href={post.href}>{post.title}</a></h2>
 						{post.description && <p>{post.description}</p>}
 						{post.tags.length > 0 && (
 							<ul class="tags" aria-label="Tags">
-								{post.tags.map((tag: string) => <li>{tag}</li>)}
+								{post.tags.map((tag) => (
+									<li><a href={tagHref(tag)}>{tag}</a></li>
+								))}
 							</ul>
 						)}
 					</div>

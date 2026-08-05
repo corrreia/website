@@ -1,10 +1,10 @@
 import type { APIContext } from "astro";
-import { formatDate, posts } from "../lib/blog";
+import { formatDate, getPosts } from "../lib/blog";
 
 /** Markdown twin of the homepage, served to agents that ask for text/markdown. */
-export const GET = ({ site }: APIContext) => {
+export const GET = async ({ site }: APIContext) => {
 	const origin = site ?? new URL("https://tomascorreia.net");
-	const latest = posts.slice(0, 3);
+	const latest = (await getPosts()).slice(0, 3);
 
 	const body = `# Tomás Correia
 
@@ -14,9 +14,10 @@ Collection of my adventures in tech and in my homelab.
 
 ## Latest posts
 
-${latest.map((post) => `- [${post.title}](${new URL(`/blog/${post.slug}/`, origin).href}) — ${formatDate(post.date)}${post.description ? `. ${post.description}` : ""}`).join("\n")}
+${latest.map((post) => `- [${post.title}](${new URL(post.href, origin).href}) — ${formatDate(post.date)}, ${post.readingMinutes} min read${post.description ? `. ${post.description}` : ""}`).join("\n")}
 
 All posts: ${new URL("/blog/", origin).href}
+Feed: ${new URL("/rss.xml", origin).href}
 
 ## Elsewhere
 

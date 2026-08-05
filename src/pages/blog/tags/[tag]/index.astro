@@ -1,0 +1,44 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import { formatDate, getTags, tagHref, type Tag } from "../../../../lib/blog";
+
+export async function getStaticPaths() {
+	const tags = await getTags();
+	return tags.map((tag) => ({ params: { tag: tag.slug }, props: { tag } }));
+}
+
+const { tag } = Astro.props as { tag: Tag };
+const count = tag.posts.length;
+---
+
+<BaseLayout
+	title={`Posts tagged ${tag.name}`}
+	description={`${count} post${count === 1 ? "" : "s"} tagged ${tag.name}.`}
+>
+	<main class="page">
+		<section class="page-heading reveal">
+			<a class="back-link" href="/blog/">Back to blog</a>
+			<h1>{tag.name}</h1>
+			<p>{count} post{count === 1 ? "" : "s"} with this tag.</p>
+		</section>
+
+		<div class="post-list">
+			{tag.posts.map((post) => (
+				<article class="post-card">
+					<div class="post-card-body">
+						<p>{formatDate(post.date)} <span class="sep">·</span> {post.readingMinutes} min read</p>
+						<h2><a href={post.href}>{post.title}</a></h2>
+						{post.description && <p>{post.description}</p>}
+						{post.tags.length > 0 && (
+							<ul class="tags" aria-label="Tags">
+								{post.tags.map((name) => (
+									<li><a href={tagHref(name)}>{name}</a></li>
+								))}
+							</ul>
+						)}
+					</div>
+				</article>
+			))}
+		</div>
+	</main>
+</BaseLayout>

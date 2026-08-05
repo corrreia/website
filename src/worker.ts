@@ -21,6 +21,7 @@ interface Env {
 }
 
 const SITEMAP_PATH = "/sitemap.xml";
+const FEED_PATH = "/rss.xml";
 
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
@@ -98,7 +99,11 @@ function isHtml(response: Response): boolean {
 /** Link headers (RFC 8288) plus the Vary that keeps caches honest. */
 function applyDiscoveryHeaders(headers: Headers, url: URL): void {
 	const canonical = new URL(url.pathname, url.origin).href;
-	const links = [`<${SITEMAP_PATH}>; rel="describedby"; type="application/xml"`, `<${canonical}>; rel="canonical"`];
+	const links = [
+		`<${SITEMAP_PATH}>; rel="describedby"; type="application/xml"`,
+		`<${canonical}>; rel="canonical"`,
+		`<${FEED_PATH}>; rel="alternate"; type="application/rss+xml"`,
+	];
 
 	const markdownPath = markdownPathFor(url.pathname);
 	if (markdownPath) {
