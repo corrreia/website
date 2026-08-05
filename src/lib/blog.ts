@@ -55,8 +55,22 @@ export async function getTags(): Promise<Tag[]> {
 	for (const post of posts) {
 		for (const name of post.tags) {
 			const slug = tagSlug(name);
-			const tag = byTag.get(slug) ?? { name, slug, posts: [] };
-			tag.posts.push(post);
+
+			// Both of these would fail quietly: an empty slug builds /blog/tags//,
+			// and two names sharing a slug (say "C#" and "C++") would silently
+			// merge into one archive. Better to stop the build and say so.
+			if (!slug) {
+				throw new Error(`Tag "${name}" on ${post.href} has no URL-safe characters, so it cannot have a tag page.`);
+			}
+			const existing = byTag.get(slug);
+			if (existing && existing.name !== name) {
+				throw new Error(
+					`Tags "${existing.name}" and "${name}" both normalise to "${slug}" and would share one tag page. Rename one of them.`,
+				);
+			}
+
+			const tag = existing ?? { name, slug, posts: [] };
+			if (!tag.posts.includes(post)) tag.posts.push(post);
 			byTag.set(slug, tag);
 		}
 	}

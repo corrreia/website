@@ -17,10 +17,11 @@ export const GET = async ({ props }: APIContext) => {
 
 	const png = await renderOgImage({ title: post.title, meta });
 
+	// No Cache-Control here: this is a static build, so Astro writes the body to
+	// dist and drops the headers. Caching is whatever Cloudflare serves assets
+	// with (currently must-revalidate against an ETag), which is what we want —
+	// the URL is stable but its content changes when the post title does.
 	return new Response(new Uint8Array(png), {
-		headers: {
-			"Content-Type": "image/png",
-			"Cache-Control": "public, max-age=31536000, immutable",
-		},
+		headers: { "Content-Type": "image/png" },
 	});
 };
