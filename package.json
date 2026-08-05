@@ -11,14 +11,21 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
-		"astro": "^5.16.5"
+		"@astrojs/rss": "^4.0.19",
+		"astro": "^5.16.5",
+		"astro-expressive-code": "^0.44.1",
+		"rehype-autolink-headings": "^7.1.0",
+		"rehype-slug": "^6.0.0",
+		"satori": "^0.29.0",
+		"sharp": "^0.35.3"
 	},
 	"devDependencies": {
 		"@astrojs/check": "^0.9.4",
+		"@types/node": "^26.1.2",
 		"typescript": "~5.9.3",
 		"wrangler": "^4.54.0"
 	},
 	"engines": {
-		"node": ">=18.0"
+		"node": ">=20.9.0"
 	}
 }

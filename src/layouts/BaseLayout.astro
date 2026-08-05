@@ -1,24 +1,34 @@
 ---
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 
 interface Props {
 	title?: string;
 	description?: string;
+	/** Site-relative path to the social card for this page. */
+	ogImage?: string;
+	ogType?: "website" | "article";
 }
 
 const siteTitle = "Tomás Correia";
 const {
 	title = siteTitle,
 	description = "Collection of my adventures in tech and in my homelab",
+	ogImage = "/img/social.png",
+	ogType = "website",
 } = Astro.props;
 const pageTitle = title === siteTitle ? title : `${title} | ${siteTitle}`;
 const isHome = Astro.url.pathname === "/";
 
 // Canonical URL, and the markdown twin of this page served by src/worker.ts
 // to agents that send `Accept: text/markdown`.
+const base = Astro.site ?? Astro.url;
 const pathname = Astro.url.pathname.endsWith("/") ? Astro.url.pathname : `${Astro.url.pathname}/`;
-const canonical = new URL(pathname, Astro.site ?? Astro.url).href;
+const canonical = new URL(pathname, base).href;
 const markdownHref = `${pathname}index.md`;
+// og:image must be absolute — most scrapers reject a relative path.
+const ogImageUrl = new URL(ogImage, base).href;
 ---
 
 <!doctype html>
@@ -27,19 +37,24 @@ const markdownHref = `${pathname}index.md`;
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="description" content={description} />
+		<meta property="og:site_name" content={siteTitle} />
+		<meta property="og:type" content={ogType} />
 		<meta property="og:title" content={pageTitle} />
 		<meta property="og:description" content={description} />
-		<meta property="og:image" content="/img/social.png" />
+		<meta property="og:image" content={ogImageUrl} />
 		<meta property="og:url" content={canonical} />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={pageTitle} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageUrl} />
 		<link rel="canonical" href={canonical} />
 		<link rel="alternate" type="text/markdown" href={markdownHref} title="Markdown version" />
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" title={`${siteTitle} — Blog`} />
 		<link rel="icon" href="/favicon.ico" />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			rel="stylesheet"
-			href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Geist:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap"
-		/>
+		<Font cssVariable="--font-fraunces" preload />
+		<Font cssVariable="--font-geist" preload />
+		<Font cssVariable="--font-jetbrains" />
+		<ClientRouter />
 		<title>{pageTitle}</title>
 	</head>
 	<body>

@@ -1,43 +1,51 @@
 ---
+import { render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { formatDate, getPosts, tagHref, type Post } from "../../lib/blog";
 
-export function getStaticPaths() {
-	const postModules = import.meta.glob("../../content/blog/**/index.md", { eager: true });
-	return Object.entries(postModules).map(([path, post]) => {
-		const module = post as { frontmatter: Record<string, any> };
-		const folder = path.split("/").at(-2) ?? "";
-		return {
-			params: { slug: module.frontmatter.slug ?? folder },
-			props: { post: module },
-		};
-	});
+export async function getStaticPaths() {
+	const posts = await getPosts();
+	return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
 }
 
-const { post } = Astro.props as {
-	post: {
-		Content: any;
-		frontmatter: Record<string, any>;
-	};
-};
-const { Content, frontmatter } = post;
-const date = new Date(frontmatter.date);
+const { post } = Astro.props as { post: Post };
+const { Content, headings } = await render(post.entry);
+
+// Only h2/h3 make a useful outline; h4 and deeper turn it into a wall.
+const toc = headings.filter((heading) => heading.depth === 2 || heading.depth === 3);
 ---
 
-<BaseLayout title={frontmatter.title} description={frontmatter.description}>
+<BaseLayout title={post.title} description={post.description} ogImage={`${post.href}og.png`} ogType="article">
 	<main class="article-wrap">
 		<article class="article">
 			<header>
 				<a class="back-link" href="/blog/">Back to blog</a>
-				<h1>{frontmatter.title}</h1>
+				<h1>{post.title}</h1>
 				<p class="article-meta">
-					{date.toLocaleDateString("en", { year: "numeric", month: "long", day: "numeric" })}
+					{formatDate(post.date)} <span class="sep">·</span> {post.readingMinutes} min read
 				</p>
-				{frontmatter.tags?.length > 0 && (
+				{post.tags.length > 0 && (
 					<ul class="tags" aria-label="Tags">
-						{frontmatter.tags.map((tag: string) => <li>{tag}</li>)}
+						{post.tags.map((tag) => (
+							<li><a href={tagHref(tag)}>{tag}</a></li>
+						))}
 					</ul>
 				)}
 			</header>
+
+			{toc.length > 1 && (
+				<nav class="toc" aria-labelledby="toc-heading">
+					<p id="toc-heading">Contents</p>
+					<ol>
+						{toc.map((heading) => (
+							<li data-depth={heading.depth}>
+								<a href={`#${heading.slug}`}>{heading.text}</a>
+							</li>
+						))}
+					</ol>
+				</nav>
+			)}
+
 			<div class="prose">
 				<Content />
 			</div>

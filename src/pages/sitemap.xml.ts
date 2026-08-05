@@ -1,5 +1,5 @@
 import type { APIContext } from "astro";
-import { isoDate, posts } from "../lib/blog";
+import { getPosts, getTags, isoDate } from "../lib/blog";
 
 /**
  * /sitemap.xml, per https://www.sitemaps.org/protocol.html
@@ -32,18 +32,27 @@ function escapeXml(value: string): string {
 	});
 }
 
-export const GET = ({ site }: APIContext) => {
+export const GET = async ({ site }: APIContext) => {
 	const origin = site ?? new URL("https://tomascorreia.net");
+	const posts = await getPosts();
+	const tags = await getTags();
 	const newest = posts[0]?.date ?? new Date();
 
 	const entries: Entry[] = [
 		{ path: "/", lastmod: newest, changefreq: "weekly", priority: "1.0" },
 		{ path: "/blog/", lastmod: newest, changefreq: "weekly", priority: "0.8" },
 		...posts.map((post) => ({
-			path: `/blog/${post.slug}/`,
+			path: post.href,
 			lastmod: post.date,
 			changefreq: "monthly",
 			priority: "0.7",
+		})),
+		...tags.map((tag) => ({
+			path: `/blog/tags/${tag.slug}/`,
+			// Newest post carrying the tag: getPosts() is already sorted.
+			lastmod: tag.posts[0]?.date ?? newest,
+			changefreq: "monthly",
+			priority: "0.4",
 		})),
 	];
 
@@ -67,9 +76,6 @@ ${urls}
 `;
 
 	return new Response(body, {
-		headers: {
-			"Content-Type": "application/xml; charset=utf-8",
-			"Cache-Control": "public, max-age=3600",
-		},
+		headers: { "Content-Type": "application/xml; charset=utf-8" },
 	});
 };
